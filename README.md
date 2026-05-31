@@ -38,7 +38,7 @@ flowchart LR
 | Frontend | Next.js, React, Tailwind CSS |
 | Backend | FastAPI, Python |
 | RAG | Custom pipeline, ChromaDB with local fallback |
-| LLM | OpenAI API, with local demo fallback |
+| LLM | DeepSeek or OpenAI API, with local demo fallback |
 | Storage | SQLite metadata, ChromaDB vectors |
 | Deployment | Vercel frontend, Railway backend, Docker Compose locally |
 
@@ -54,7 +54,7 @@ Open:
 - Frontend: http://localhost:3000
 - Backend health: http://localhost:8000/api/health
 
-The project can run without `OPENAI_API_KEY` for demos. Add an OpenAI key to enable production-quality embeddings and answers.
+The project can run without an LLM key for demos. Add `DEEPSEEK_API_KEY` or `OPENAI_API_KEY` to enable production-quality answers. If only DeepSeek is configured, embeddings use the local fallback index.
 
 ## Local Development
 
@@ -105,6 +105,7 @@ The detailed click-by-click deployment checklist is in [`docs/DEPLOYMENT.md`](do
    - `OPENAI_API_KEY`
    - `OPENAI_MODEL=gpt-4o-mini`
    - `OPENAI_EMBEDDING_MODEL=text-embedding-3-small`
+   - Or use `DEEPSEEK_API_KEY` and `DEEPSEEK_MODEL=deepseek-chat`
    - `BACKEND_CORS_ORIGINS=https://your-vercel-domain.vercel.app`
 4. The backend includes `railway.json`, so Railway can use:
 

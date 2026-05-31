@@ -15,12 +15,16 @@ class Settings:
         if origin.strip()
     ]
     openai_api_key = os.getenv("OPENAI_API_KEY", "")
+    deepseek_api_key = os.getenv("DEEPSEEK_API_KEY", "")
     openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    deepseek_model = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
     embedding_model = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+    llm_api_key = deepseek_api_key or openai_api_key
+    llm_base_url = "https://api.deepseek.com" if deepseek_api_key else None
+    llm_model = deepseek_model if deepseek_api_key else openai_model
     sqlite_path = DATA_DIR / "qasystem.sqlite3"
     chroma_path = DATA_DIR / "chroma"
     retrieval_k = int(os.getenv("RETRIEVAL_K", "5"))
 
 
 settings = Settings()
-

@@ -26,10 +26,10 @@ def build_messages(question: str, history: list[dict], contexts: list[dict]) -> 
 
 
 async def stream_answer(question: str, history: list[dict], contexts: list[dict]) -> AsyncIterator[str]:
-    if settings.openai_api_key:
-        client = OpenAI(api_key=settings.openai_api_key)
+    if settings.llm_api_key:
+        client = OpenAI(api_key=settings.llm_api_key, base_url=settings.llm_base_url)
         stream = client.chat.completions.create(
-            model=settings.openai_model,
+            model=settings.llm_model,
             messages=build_messages(question, history, contexts),
             temperature=0.2,
             stream=True,
@@ -54,4 +54,3 @@ async def stream_answer(question: str, history: list[dict], contexts: list[dict]
     for word in answer.split():
         yield word + " "
         await asyncio.sleep(0.015)
-

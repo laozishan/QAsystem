@@ -21,6 +21,14 @@ OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 BACKEND_CORS_ORIGINS=https://your-vercel-domain.vercel.app
 ```
 
+DeepSeek is also supported. To use it for chat answers, set:
+
+```bash
+DEEPSEEK_API_KEY=your_deepseek_key
+DEEPSEEK_MODEL=deepseek-chat
+BACKEND_CORS_ORIGINS=https://your-vercel-domain.vercel.app
+```
+
 7. After deploy, open the service Networking tab and generate a public domain.
 8. Confirm this endpoint works:
 
