@@ -117,7 +117,7 @@ uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ### Frontend on Vercel
 
 1. Import the same repository into Vercel.
-2. Set the root directory to `frontend`.
+2. Leave the root directory as the repository root. The root `vercel.json` builds the `frontend` app.
 3. Add:
 
 ```bash
