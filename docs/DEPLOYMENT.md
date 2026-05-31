@@ -34,7 +34,7 @@ For persistent uploaded documents across redeploys, add a Railway volume mounted
 
 1. Import `laozishan/QAsystem` into Vercel.
 2. Leave the project root directory as the repository root.
-3. The root `vercel.json` installs and builds the app in `frontend`.
+3. The root `vercel.json` installs and builds the Next.js frontend.
 4. Add environment variable:
 
 ```bash
