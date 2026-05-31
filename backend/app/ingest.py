@@ -75,8 +75,18 @@ def extract_upload(filename: str, content: bytes) -> str:
 
 
 async def extract_web_page(url: str) -> tuple[str, str]:
+    headers = {
+        "User-Agent": "QAsystemRAG/0.1 (+https://github.com/laozishan/QAsystem; educational knowledge-base app)",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+    }
     async with httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
-        response = await client.get(url)
+        response = await client.get(url, headers=headers)
+        if response.status_code == 403:
+            raise ValueError(
+                "This website blocked server-side reading. Try uploading the page as PDF/TXT/Markdown, "
+                "or use a site that allows automated access."
+            )
         response.raise_for_status()
 
     soup = BeautifulSoup(response.text, "html.parser")

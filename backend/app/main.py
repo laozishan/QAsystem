@@ -70,6 +70,8 @@ async def upload_document(file: UploadFile = File(...)) -> dict:
 async def ingest_web_page(payload: WebIngestRequest) -> dict:
     try:
         discovered_title, text = await extract_web_page(str(payload.url))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Could not read web page: {exc}") from exc
 
