@@ -1,9 +1,12 @@
 import asyncio
+import logging
 from collections.abc import AsyncIterator
 
-from openai import OpenAI
+from openai import APIStatusError, OpenAI
 
 from .config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def build_messages(question: str, history: list[dict], contexts: list[dict]) -> list[dict[str, str]]:
@@ -28,17 +31,25 @@ def build_messages(question: str, history: list[dict], contexts: list[dict]) -> 
 async def stream_answer(question: str, history: list[dict], contexts: list[dict]) -> AsyncIterator[str]:
     if settings.llm_api_key:
         client = OpenAI(api_key=settings.llm_api_key, base_url=settings.llm_base_url)
-        stream = client.chat.completions.create(
-            model=settings.llm_model,
-            messages=build_messages(question, history, contexts),
-            temperature=0.2,
-            stream=True,
-        )
-        for event in stream:
-            token = event.choices[0].delta.content or ""
-            if token:
-                yield token
-                await asyncio.sleep(0)
+        try:
+            stream = client.chat.completions.create(
+                model=settings.llm_model,
+                messages=build_messages(question, history, contexts),
+                temperature=0.2,
+                stream=True,
+            )
+            for event in stream:
+                token = event.choices[0].delta.content or ""
+                if token:
+                    yield token
+                    await asyncio.sleep(0)
+        except APIStatusError as exc:
+            logger.exception("LLM provider returned an API error")
+            detail = exc.response.text[:500] if exc.response is not None else str(exc)
+            raise RuntimeError(f"{exc.status_code} from {settings.llm_model}: {detail}") from exc
+        except Exception:
+            logger.exception("LLM generation failed")
+            raise
         return
 
     if contexts:

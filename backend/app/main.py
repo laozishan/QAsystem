@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -41,6 +42,18 @@ def startup() -> None:
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/api/status")
+def status() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "llm_provider": "deepseek" if settings.deepseek_api_key else ("openai" if settings.openai_api_key else "local-fallback"),
+        "llm_model": settings.llm_model if settings.llm_api_key else None,
+        "deepseek_key_present": bool(settings.deepseek_api_key),
+        "openai_key_present": bool(settings.openai_api_key),
+        "railway_commit": os.getenv("RAILWAY_GIT_COMMIT_SHA"),
+    }
 
 
 @app.get("/api/documents", response_model=list[DocumentOut])
@@ -101,7 +114,7 @@ def sse(event: str, payload: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
-def fallback_answer(question: str, contexts: list[dict]) -> str:
+def fallback_answer(question: str, contexts: list[dict], error: str | None = None) -> str:
     if not contexts:
         return (
             "I could not find relevant knowledge-base context for this question. "
@@ -112,6 +125,8 @@ def fallback_answer(question: str, contexts: list[dict]) -> str:
         "I found relevant passages, but the LLM generation step failed. Here is a retrieval-based summary:",
         "",
     ]
+    if error:
+        lines.extend([f"LLM error: {error[:360]}", ""])
     for item in contexts[:3]:
         excerpt = " ".join(item["text"].split())[:520]
         lines.append(f"[{item['rank']}] {item['title']}: {excerpt}")
@@ -138,10 +153,11 @@ async def chat_stream(payload: ChatRequest) -> StreamingResponse:
                 answer_parts.append(token)
                 yield sse("token", {"token": token})
         except Exception as exc:
-            answer = fallback_answer(payload.question, contexts)
+            error_message = str(exc)
+            answer = fallback_answer(payload.question, contexts, error_message)
             answer_parts = [answer]
             yield sse("token", {"token": answer})
-            yield sse("error", {"message": f"LLM generation failed: {exc}"})
+            yield sse("error", {"message": f"LLM generation failed: {error_message}"})
         answer = "".join(answer_parts).strip()
         add_message(conversation_id, "assistant", answer)
         yield sse("done", {"answer": answer, "conversation_id": conversation_id})
