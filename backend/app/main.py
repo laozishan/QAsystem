@@ -101,6 +101,25 @@ def sse(event: str, payload: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
+def fallback_answer(question: str, contexts: list[dict]) -> str:
+    if not contexts:
+        return (
+            "I could not find relevant knowledge-base context for this question. "
+            "Try uploading a document or selecting a different knowledge item."
+        )
+
+    lines = [
+        "I found relevant passages, but the LLM generation step failed. Here is a retrieval-based summary:",
+        "",
+    ]
+    for item in contexts[:3]:
+        excerpt = " ".join(item["text"].split())[:520]
+        lines.append(f"[{item['rank']}] {item['title']}: {excerpt}")
+    lines.append("")
+    lines.append("Check the backend LLM API key/settings if you expected a generated answer.")
+    return "\n".join(lines)
+
+
 @app.post("/api/chat/stream")
 async def chat_stream(payload: ChatRequest) -> StreamingResponse:
     conversation_id = payload.conversation_id
@@ -114,9 +133,15 @@ async def chat_stream(payload: ChatRequest) -> StreamingResponse:
     async def events():
         answer_parts: list[str] = []
         yield sse("meta", {"conversation_id": conversation_id, "citations": contexts})
-        async for token in stream_answer(payload.question, history, contexts):
-            answer_parts.append(token)
-            yield sse("token", {"token": token})
+        try:
+            async for token in stream_answer(payload.question, history, contexts):
+                answer_parts.append(token)
+                yield sse("token", {"token": token})
+        except Exception as exc:
+            answer = fallback_answer(payload.question, contexts)
+            answer_parts = [answer]
+            yield sse("token", {"token": answer})
+            yield sse("error", {"message": f"LLM generation failed: {exc}"})
         answer = "".join(answer_parts).strip()
         add_message(conversation_id, "assistant", answer)
         yield sse("done", {"answer": answer, "conversation_id": conversation_id})

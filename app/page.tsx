@@ -138,6 +138,9 @@ export default function Home() {
               return copy;
             });
           }
+          if (eventName === "error") {
+            setError(data.message || "Answer generation failed");
+          }
         }
       }
     } catch (err) {
@@ -324,4 +327,3 @@ export default function Home() {
     </main>
   );
 }
-
