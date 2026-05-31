@@ -10,8 +10,8 @@ This project is designed as a two-service deployment:
 1. Open Railway and create a new project.
 2. Choose `Deploy from GitHub repo`.
 3. Select `laozishan/QAsystem`.
-4. Set the service root directory to `backend`.
-5. Railway will use `backend/railway.json` and `backend/Dockerfile`.
+4. Leave the service root directory as the repository root, or set it to `backend`.
+5. Railway can deploy from the repository root using `railway.json` and `Dockerfile`.
 6. Add environment variables:
 
 ```bash
@@ -52,4 +52,3 @@ BACKEND_CORS_ORIGINS=https://your-vercel-domain.vercel.app
 ```
 
 Redeploy the backend so browser requests from Vercel are allowed.
-

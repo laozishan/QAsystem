@@ -100,7 +100,7 @@ The detailed click-by-click deployment checklist is in [`docs/DEPLOYMENT.md`](do
 ### Backend on Railway
 
 1. Create a Railway project from this GitHub repository.
-2. Set the root directory to `backend`.
+2. Leave the root directory as the repository root. The repo includes a root `railway.json` and `Dockerfile`.
 3. Add environment variables:
    - `OPENAI_API_KEY`
    - `OPENAI_MODEL=gpt-4o-mini`
