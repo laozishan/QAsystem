@@ -13,6 +13,7 @@
 - Conversation persistence with SQLite
 - ChromaDB vector database in Docker/Linux, with a Windows-friendly local JSON fallback
 - Docker Compose one-command startup
+- Deployment-ready Railway and Vercel configuration
 
 ## Architecture
 
@@ -94,6 +95,8 @@ npm run dev
 
 ## Deployment
 
+The detailed click-by-click deployment checklist is in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
 ### Backend on Railway
 
 1. Create a Railway project from this GitHub repository.
@@ -103,11 +106,13 @@ npm run dev
    - `OPENAI_MODEL=gpt-4o-mini`
    - `OPENAI_EMBEDDING_MODEL=text-embedding-3-small`
    - `BACKEND_CORS_ORIGINS=https://your-vercel-domain.vercel.app`
-4. Start command:
+4. The backend includes `railway.json`, so Railway can use:
 
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
+
+5. Generate a public Railway domain and verify `/api/health`.
 
 ### Frontend on Vercel
 
