@@ -1,4 +1,4 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "https://qasystem-production.up.railway.app";
 
 export type DocumentItem = {
   id: string;
@@ -20,4 +20,3 @@ export async function fetchDocuments(): Promise<DocumentItem[]> {
   if (!response.ok) throw new Error("Could not load documents");
   return response.json();
 }
-

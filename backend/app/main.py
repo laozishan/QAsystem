@@ -26,6 +26,7 @@ app = FastAPI(title=settings.app_name)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -119,4 +120,3 @@ async def chat_stream(payload: ChatRequest) -> StreamingResponse:
         yield sse("done", {"answer": answer, "conversation_id": conversation_id})
 
     return StreamingResponse(events(), media_type="text/event-stream")
-
